@@ -2,16 +2,19 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { streamChatReply, type AiModelChoice, type ChatMessageInput } from './ai'
 import {
   authStorageClear,
   authStorageGet,
   authStorageRemove,
   authStorageSet,
 } from './auth-store'
+import { loadEnvFile } from './load-env'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 process.env.APP_ROOT = path.join(__dirname, '..')
+loadEnvFile(process.env.APP_ROOT)
 
 export const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL
 export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
@@ -21,6 +24,7 @@ const AUTH_WEB_URL = process.env.VITE_AUTH_WEB_URL || 'http://localhost:3000'
 
 let mainWindow: BrowserWindow | null = null
 let pendingDeepLink: string | null = null
+const activeStreams = new Map<string, AbortController>()
 
 function registerProtocol() {
   if (process.defaultApp) {
@@ -78,10 +82,7 @@ function parseAuthDeepLink(url: string) {
   try {
     const parsed = new URL(url)
     if (parsed.protocol !== `${PROTOCOL}:`) return null
-    if (parsed.hostname !== 'auth' && parsed.pathname.replace(/^\//, '') !== 'auth') {
-      // forma://auth?... → hostname is "auth"
-      if (parsed.hostname !== 'auth') return null
-    }
+    if (parsed.hostname !== 'auth') return null
 
     const accessToken = parsed.searchParams.get('access_token')
     const refreshToken = parsed.searchParams.get('refresh_token')
@@ -137,6 +138,56 @@ if (!gotLock) {
       await shell.openExternal(url)
     })
 
+    ipcMain.handle(
+      'ai:stream',
+      async (
+        event,
+        payload: {
+          requestId: string
+          model: AiModelChoice
+          messages: ChatMessageInput[]
+        },
+      ) => {
+        const controller = new AbortController()
+        activeStreams.set(payload.requestId, controller)
+
+        try {
+          const text = await streamChatReply({
+            rootDir: process.env.APP_ROOT!,
+            model: payload.model,
+            messages: payload.messages,
+            signal: controller.signal,
+            onChunk: (chunk) => {
+              event.sender.send('ai:chunk', {
+                requestId: payload.requestId,
+                text: chunk,
+              })
+            },
+          })
+
+          event.sender.send('ai:done', {
+            requestId: payload.requestId,
+            text,
+          })
+          return { ok: true as const, text }
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'AI error'
+          event.sender.send('ai:error', {
+            requestId: payload.requestId,
+            message,
+          })
+          return { ok: false as const, message }
+        } finally {
+          activeStreams.delete(payload.requestId)
+        }
+      },
+    )
+
+    ipcMain.handle('ai:cancel', (_event, requestId: string) => {
+      activeStreams.get(requestId)?.abort()
+      activeStreams.delete(requestId)
+    })
+
     createWindow()
 
     app.on('activate', () => {
@@ -151,7 +202,6 @@ if (!gotLock) {
     handleDeepLink(url)
   })
 
-  // Cold start on Windows/Linux may pass protocol URL in argv
   const argvLink = process.argv.find((arg) => arg.startsWith(`${PROTOCOL}://`))
   if (argvLink) pendingDeepLink = argvLink
 }

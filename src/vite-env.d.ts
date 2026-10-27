@@ -5,6 +5,13 @@ interface AuthTokens {
   refreshToken: string
 }
 
+type AiModelChoice = 'Auto' | 'Claude' | 'GPT' | 'Gemini'
+
+type ChatMessageInput = {
+  role: 'user' | 'assistant' | 'system'
+  content: string
+}
+
 interface FormaBridge {
   platform: NodeJS.Platform
   authStorage: {
@@ -15,6 +22,15 @@ interface FormaBridge {
   clearAuthStorage: () => Promise<void>
   openAuth: (pathName: 'login' | 'register') => Promise<void>
   onAuthDeepLink: (callback: (tokens: AuthTokens) => void) => () => void
+  streamAi: (payload: {
+    requestId: string
+    model: AiModelChoice
+    messages: ChatMessageInput[]
+  }) => Promise<{ ok: true; text: string } | { ok: false; message: string }>
+  cancelAi: (requestId: string) => Promise<void>
+  onAiChunk: (callback: (payload: { requestId: string; text: string }) => void) => () => void
+  onAiDone: (callback: (payload: { requestId: string; text: string }) => void) => () => void
+  onAiError: (callback: (payload: { requestId: string; message: string }) => void) => () => void
 }
 
 interface ImportMetaEnv {

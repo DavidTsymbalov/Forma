@@ -15,3 +15,4 @@
 - Auth шаг 1: миграция Supabase (profiles, project_folders, chats) + RLS запушена.
 - Auth шаг 2: сайт `web/` — login/register/account, deep link `forma://auth` для desktop.
 - Auth шаг 3: desktop Sign in, forma:// + safeStorage, Settings → Выйти, профиль в sidebar.
+- Этап 6: AI chat (Vercel AI SDK), таблица messages, стрим в UI, system prompt Forma.

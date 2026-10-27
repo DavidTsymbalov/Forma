@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ChevronDown, Laptop, PanelLeft, PanelRight } from 'lucide-react'
 
 import logoUrl from '../../assets/icons/forma-logo.svg'
-import { PromptInput } from '@/components/PromptInput'
+import { PromptInput, type PromptModel } from '@/components/PromptInput'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,11 +17,18 @@ type HomeScreenProps = {
   active: boolean
   sidebarOpen: boolean
   onToggleSidebar: () => void
+  onStartChat: (text: string, model: PromptModel) => Promise<void> | void
 }
 
-export function HomeScreen({ active, sidebarOpen, onToggleSidebar }: HomeScreenProps) {
+export function HomeScreen({
+  active,
+  sidebarOpen,
+  onToggleSidebar,
+  onStartChat,
+}: HomeScreenProps) {
   const [projectLabel, setProjectLabel] = useState<string>('New project')
   const [machineLabel, setMachineLabel] = useState<(typeof MACHINE_OPTIONS)[number]>('This Mac')
+  const [sending, setSending] = useState(false)
 
   return (
     <section className={active ? 'screen-pane is-active' : 'screen-pane'} aria-hidden={!active}>
@@ -92,7 +99,16 @@ export function HomeScreen({ active, sidebarOpen, onToggleSidebar }: HomeScreenP
 
             <PromptInput
               centered
+              disabled={sending}
               placeholder="Plans, websites, projects — build anything with one message"
+              onSubmit={async (text, model) => {
+                setSending(true)
+                try {
+                  await onStartChat(text, model)
+                } finally {
+                  setSending(false)
+                }
+              }}
             />
 
             <div className="home-prompt-row">

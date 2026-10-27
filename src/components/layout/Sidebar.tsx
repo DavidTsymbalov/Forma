@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ChevronDown,
   Code,
@@ -15,9 +15,10 @@ import {
 
 import avatarStub from '../../../assets/icons/avatar-stub.svg'
 import { useAuth } from '@/auth/AuthProvider'
+import { listFoldersWithChats, type ChatRow, type FolderRow } from '@/lib/chats'
 import { cn } from '@/lib/utils'
 
-export type AppMode = 'home' | 'code' | 'design' | 'settings'
+export type AppMode = 'home' | 'code' | 'design' | 'settings' | 'chat'
 
 const navItems = [
   { id: 'home', label: 'Home', icon: LayoutGrid },
@@ -25,32 +26,64 @@ const navItems = [
   { id: 'design', label: 'Design', icon: Palette },
 ] as const
 
-const folders = [
-  { id: 'hawk', name: 'Hawk VPN', chats: [] as { id: string; name: string }[] },
-  { id: 'ai-slop', name: 'AI slop', chats: [] as { id: string; name: string }[] },
-  {
-    id: 'idk',
-    name: 'IDK',
-    chats: [{ id: 'app-to-shop', name: 'App to shop chat' }],
-  },
-]
-
 type SidebarProps = {
   open: boolean
   active: AppMode
+  activeChatId: string | null
+  refreshKey: number
   onChange: (mode: AppMode) => void
+  onOpenChat: (chat: ChatRow) => void
   onToggle: () => void
 }
 
-export function Sidebar({ open, active, onChange, onToggle }: SidebarProps) {
+export function Sidebar({
+  open,
+  active,
+  activeChatId,
+  refreshKey,
+  onChange,
+  onOpenChat,
+  onToggle,
+}: SidebarProps) {
   const { user, profile } = useAuth()
-  const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({
-    idk: true,
-  })
+  const [folders, setFolders] = useState<FolderRow[]>([])
+  const [chats, setChats] = useState<ChatRow[]>([])
+  const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({})
 
   const displayName = profile?.name || user?.email?.split('@')[0] || 'User'
   const email = user?.email || ''
   const avatarSrc = profile?.avatar_url || avatarStub
+
+  const refresh = useCallback(async () => {
+    try {
+      const data = await listFoldersWithChats()
+      setFolders(data.folders)
+      setChats(data.chats)
+      setOpenFolders((prev) => {
+        const next = { ...prev }
+        for (const folder of data.folders) {
+          if (next[folder.id] === undefined) next[folder.id] = true
+        }
+        return next
+      })
+    } catch (error) {
+      console.error(error)
+    }
+  }, [])
+
+  useEffect(() => {
+    void refresh()
+  }, [refresh, refreshKey, user?.id])
+
+  const chatsByFolder = useMemo(() => {
+    const map = new Map<string, ChatRow[]>()
+    for (const chat of chats) {
+      const list = map.get(chat.folder_id) ?? []
+      list.push(chat)
+      map.set(chat.folder_id, list)
+    }
+    return map
+  }, [chats])
 
   function toggleFolder(id: string) {
     setOpenFolders((prev) => ({ ...prev, [id]: !prev[id] }))
@@ -100,8 +133,13 @@ export function Sidebar({ open, active, onChange, onToggle }: SidebarProps) {
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
+              {folders.length === 0 ? (
+                <div className="px-2 py-1 text-xs text-text-muted">Папок пока нет</div>
+              ) : null}
+
               {folders.map((folder) => {
                 const isOpen = Boolean(openFolders[folder.id])
+                const folderChats = chatsByFolder.get(folder.id) ?? []
                 return (
                   <div key={folder.id}>
                     <div className="sidebar-row group">
@@ -124,18 +162,26 @@ export function Sidebar({ open, active, onChange, onToggle }: SidebarProps) {
                     </div>
 
                     {isOpen &&
-                      folder.chats.map((chat) => (
-                        <div key={chat.id} className="sidebar-row sidebar-chat group">
-                          <span className="min-w-0 flex-1 truncate">{chat.name}</span>
+                      folderChats.map((chat) => (
+                        <button
+                          key={chat.id}
+                          type="button"
+                          className={cn(
+                            'sidebar-row sidebar-chat group w-full text-left',
+                            activeChatId === chat.id && 'is-active-chat',
+                          )}
+                          onClick={() => onOpenChat(chat)}
+                        >
+                          <span className="min-w-0 flex-1 truncate">{chat.title}</span>
                           <div className="sidebar-row-actions">
-                            <button type="button" className="sidebar-icon-btn" aria-label="Открыть">
+                            <span className="sidebar-icon-btn" aria-hidden>
                               <Play />
-                            </button>
-                            <button type="button" className="sidebar-icon-btn" aria-label="Ещё">
+                            </span>
+                            <span className="sidebar-icon-btn" aria-hidden>
                               <MoreHorizontal />
-                            </button>
+                            </span>
                           </div>
-                        </div>
+                        </button>
                       ))}
                   </div>
                 )

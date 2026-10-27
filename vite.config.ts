@@ -21,6 +21,12 @@ export default defineConfig(({ mode }) => {
           vite: {
             build: {
               outDir: 'dist-electron',
+              rollupOptions: {
+                output: {
+                  inlineDynamicImports: true,
+                  entryFileNames: 'main.js',
+                },
+              },
             },
             define: {
               'process.env.VITE_AUTH_WEB_URL': JSON.stringify(authWebUrl),
