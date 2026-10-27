@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { PanelLeft } from 'lucide-react'
 
 import { PromptInput, type PromptModel } from '@/components/PromptInput'
+import { streamChatFromEdge } from '@/lib/ai-stream'
 import { addMessage, listMessages, type MessageRow } from '@/lib/chats'
 import { cn } from '@/lib/utils'
 
@@ -51,6 +52,7 @@ export function ChatScreen({
   const [loaded, setLoaded] = useState(false)
   const startedRef = useRef<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
@@ -79,17 +81,15 @@ export function ChatScreen({
     void load()
     return () => {
       cancelled = true
+      abortRef.current?.abort()
     }
   }, [chatId])
 
   async function runAssistant(nextMessages: UiMessage[], nextModel: PromptModel) {
-    if (!window.forma?.streamAi) {
-      setError('AI недоступен вне Electron')
-      return
-    }
+    const assistantId = `local-${crypto.randomUUID()}`
+    const controller = new AbortController()
+    abortRef.current = controller
 
-    const requestId = crypto.randomUUID()
-    const assistantId = `local-${requestId}`
     setBusy(true)
     setError(null)
     setMessages((prev) => [
@@ -97,35 +97,30 @@ export function ChatScreen({
       { id: assistantId, role: 'assistant', content: '', streaming: true },
     ])
 
-    const unsubChunk = window.forma.onAiChunk(({ requestId: id, text }) => {
-      if (id !== requestId) return
-      setMessages((prev) =>
-        prev.map((message) =>
-          message.id === assistantId
-            ? { ...message, content: `${message.content}${text}` }
-            : message,
-        ),
-      )
-    })
-
     try {
-      const result = await window.forma.streamAi({
-        requestId,
+      const text = await streamChatFromEdge({
+        chatId,
         model: nextModel,
         messages: nextMessages.map((message) => ({
           role: message.role,
           content: message.content,
         })),
+        signal: controller.signal,
+        onChunk: (chunk) => {
+          setMessages((prev) =>
+            prev.map((message) =>
+              message.id === assistantId
+                ? { ...message, content: `${message.content}${chunk}` }
+                : message,
+            ),
+          )
+        },
       })
-
-      if (!result.ok) {
-        throw new Error(result.message)
-      }
 
       const saved = await addMessage({
         chatId,
         role: 'assistant',
-        content: result.text,
+        content: text,
         model: nextModel,
       })
 
@@ -141,11 +136,12 @@ export function ChatScreen({
         ),
       )
     } catch (err) {
+      if ((err as Error).name === 'AbortError') return
       setError(err instanceof Error ? err.message : 'Ошибка ИИ')
       setMessages((prev) => prev.filter((message) => message.id !== assistantId))
     } finally {
-      unsubChunk()
       setBusy(false)
+      abortRef.current = null
     }
   }
 

@@ -2,7 +2,6 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { streamChatReply, type AiModelChoice, type ChatMessageInput } from './ai'
 import {
   authStorageClear,
   authStorageGet,
@@ -24,7 +23,6 @@ const AUTH_WEB_URL = process.env.VITE_AUTH_WEB_URL || 'http://localhost:3000'
 
 let mainWindow: BrowserWindow | null = null
 let pendingDeepLink: string | null = null
-const activeStreams = new Map<string, AbortController>()
 
 function registerProtocol() {
   if (process.defaultApp) {
@@ -136,56 +134,6 @@ if (!gotLock) {
     ipcMain.handle('auth:open', async (_event, pathName: 'login' | 'register') => {
       const url = `${AUTH_WEB_URL.replace(/\/$/, '')}/${pathName}?next=desktop`
       await shell.openExternal(url)
-    })
-
-    ipcMain.handle(
-      'ai:stream',
-      async (
-        event,
-        payload: {
-          requestId: string
-          model: AiModelChoice
-          messages: ChatMessageInput[]
-        },
-      ) => {
-        const controller = new AbortController()
-        activeStreams.set(payload.requestId, controller)
-
-        try {
-          const text = await streamChatReply({
-            rootDir: process.env.APP_ROOT!,
-            model: payload.model,
-            messages: payload.messages,
-            signal: controller.signal,
-            onChunk: (chunk) => {
-              event.sender.send('ai:chunk', {
-                requestId: payload.requestId,
-                text: chunk,
-              })
-            },
-          })
-
-          event.sender.send('ai:done', {
-            requestId: payload.requestId,
-            text,
-          })
-          return { ok: true as const, text }
-        } catch (error) {
-          const message = error instanceof Error ? error.message : 'AI error'
-          event.sender.send('ai:error', {
-            requestId: payload.requestId,
-            message,
-          })
-          return { ok: false as const, message }
-        } finally {
-          activeStreams.delete(payload.requestId)
-        }
-      },
-    )
-
-    ipcMain.handle('ai:cancel', (_event, requestId: string) => {
-      activeStreams.get(requestId)?.abort()
-      activeStreams.delete(requestId)
     })
 
     createWindow()
