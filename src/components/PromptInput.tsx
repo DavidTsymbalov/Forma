@@ -85,16 +85,15 @@ export function PromptInput({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button
+            <button
               type="button"
-              size="icon"
               aria-label="Отправить"
               disabled={!canSend}
               onClick={send}
-              className={cn('shrink-0 rounded-full', !canSend && 'opacity-40')}
+              className={cn('prompt-send', canSend && 'is-ready')}
             >
-              <ArrowUp />
-            </Button>
+              <ArrowUp className="size-4" />
+            </button>
           </div>
         </div>
       </div>

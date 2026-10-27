@@ -10,3 +10,4 @@
 - Этап 3: блок ввода промпта (`PromptInput`) внизу main, DropdownMenu моделей, Enter/Shift+Enter.
 - PromptInput: размеры через токены и классы `.prompt-*` в CSS (dev JIT не отдавал кастомные Tailwind-утилиты).
 - Этап 4: sidebar (Home/Code/Design, folders, профиль), экран Home с центрированным PromptInput.
+- Правки макета: prompt 560px / 13px, чипы 24×11, send white/dark, отступ чата под папкой.

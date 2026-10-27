@@ -45,6 +45,7 @@ body {
 }
 
 .prompt-shell--center {
+  padding-inline: 0;
   padding-bottom: 0;
 }
 
@@ -109,6 +110,10 @@ body {
   display: inline-flex;
 }
 
+.sidebar-chat {
+  padding-left: var(--sidebar-chat-indent);
+}
+
 .avatar {
   display: inline-flex;
   width: var(--avatar-size);
@@ -125,14 +130,16 @@ body {
 
 .chip-button {
   display: inline-flex;
+  height: var(--chip-height);
   align-items: center;
   justify-content: center;
   border: 1px solid var(--input-border);
   border-radius: 9999px;
-  background: var(--input-bg);
-  padding: 0.375rem 0.875rem;
+  background: transparent;
+  padding: 0 0.75rem;
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--chip-font-size);
+  line-height: 1;
 }
 
 .chip-button:hover {
@@ -145,6 +152,11 @@ body {
   max-width: var(--prompt-width);
   flex-direction: column;
   gap: 0.75rem;
+  font-size: var(--prompt-font-size);
+}
+
+.home-prompt-column button:not(.chip-button):not(.prompt-send) {
+  font-size: var(--prompt-font-size);
 }
 
 .home-prompt-row {
@@ -152,7 +164,30 @@ body {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
-  padding-inline: var(--prompt-inline);
+}
+
+.prompt-send {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 9999px;
+  background: var(--input-bg);
+  color: var(--text-muted);
+  opacity: 0.4;
+}
+
+.prompt-send.is-ready {
+  background: var(--send-bg);
+  color: var(--send-fg);
+  opacity: 1;
+}
+
+.prompt-send:disabled {
+  cursor: default;
 }
 
 .prompt-card {
@@ -177,7 +212,7 @@ body {
   border: none;
   background: transparent;
   color: var(--text-active);
-  font-size: 0.875rem;
+  font-size: var(--prompt-font-size);
   line-height: var(--prompt-line-height);
   outline: none;
 }

@@ -120,7 +120,7 @@ export function Sidebar({ active, onChange, onToggle }: SidebarProps) {
 
                   {isOpen &&
                     folder.chats.map((chat) => (
-                      <div key={chat.id} className="sidebar-row group pl-7">
+                      <div key={chat.id} className="sidebar-row sidebar-chat group">
                         <span className="min-w-0 flex-1 truncate">{chat.name}</span>
                         <div className="sidebar-row-actions">
                           <Button type="button" variant="ghost" size="icon" className="h-6 w-6" aria-label="Закрепить">

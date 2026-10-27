@@ -11,10 +11,16 @@
   --sidebar-width: 240px;
   --titlebar-height: 48px;
   --avatar-size: 32px;
-  --prompt-width: 720px;
+  --prompt-width: 560px;
   --prompt-bottom: 24px;
   --prompt-inline: 24px;
   --prompt-radius: 16px;
   --prompt-padding: 12px;
   --prompt-line-height: 1.5rem;
+  --prompt-font-size: 13px;
+  --chip-height: 24px;
+  --chip-font-size: 11px;
+  --send-bg: rgba(255, 255, 255, 1);
+  --send-fg: rgba(22, 22, 24, 0.92);
+  --sidebar-chat-indent: 3.25rem;
 }
