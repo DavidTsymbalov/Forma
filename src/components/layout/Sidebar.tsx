@@ -1,21 +1,19 @@
 import { useState } from 'react'
 import {
-  Archive,
   ChevronDown,
-  ChevronRight,
   Code,
   Folder,
   FolderPlus,
   LayoutGrid,
   ListFilter,
+  MoreHorizontal,
   Palette,
   PanelLeft,
-  Pin,
-  Plus,
+  Play,
   Settings,
 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import avatarUrl from '../../../assets/icons/avatar-stub.svg'
 import { cn } from '@/lib/utils'
 
 export type AppMode = 'home' | 'code' | 'design'
@@ -37,12 +35,13 @@ const folders = [
 ]
 
 type SidebarProps = {
+  open: boolean
   active: AppMode
   onChange: (mode: AppMode) => void
   onToggle: () => void
 }
 
-export function Sidebar({ active, onChange, onToggle }: SidebarProps) {
+export function Sidebar({ open, active, onChange, onToggle }: SidebarProps) {
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({
     idk: true,
   })
@@ -52,103 +51,104 @@ export function Sidebar({ active, onChange, onToggle }: SidebarProps) {
   }
 
   return (
-    <aside className="sidebar">
-      <div className="app-drag flex h-12 shrink-0 items-center justify-end pr-2 pl-20">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label="Скрыть боковую панель"
-          className="app-no-drag"
-          onClick={onToggle}
+    <aside className={cn('sidebar', !open && 'sidebar--collapsed')} aria-hidden={!open}>
+      <div className="sidebar-inner">
+        <div
+          className="app-drag flex shrink-0 items-center"
+          style={{ height: 'var(--titlebar-height)', paddingLeft: 'var(--traffic-inset)' }}
         >
-          <PanelLeft />
-        </Button>
-      </div>
-
-      <div className="app-no-drag flex min-h-0 flex-1 flex-col gap-4 px-3 pb-3">
-        <nav className="flex flex-col gap-1">
-          {navItems.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              type="button"
-              className={cn('sidebar-nav-item', active === id && 'is-active')}
-              onClick={() => onChange(id)}
-            >
-              <Icon className="size-4 shrink-0" />
-              {label}
-            </button>
-          ))}
-        </nav>
-
-        <div className="flex min-h-0 flex-1 flex-col gap-2">
-          <div className="flex items-center gap-2 px-1">
-            <span className="flex-1 text-xs text-text-muted">Project folders</span>
-            <Button type="button" variant="ghost" size="icon" className="h-7 w-7" aria-label="Сортировать">
-              <ListFilter className="size-3.5" />
-            </Button>
-            <Button type="button" variant="ghost" size="icon" className="h-7 w-7" aria-label="Новая папка">
-              <FolderPlus className="size-3.5" />
-            </Button>
-          </div>
-
-          <div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
-            {folders.map((folder) => {
-              const isOpen = Boolean(openFolders[folder.id])
-              return (
-                <div key={folder.id}>
-                  <div className="sidebar-row group">
-                    <button
-                      type="button"
-                      className="flex min-w-0 flex-1 items-center gap-2 text-left"
-                      onClick={() => toggleFolder(folder.id)}
-                    >
-                      {isOpen ? (
-                        <ChevronDown className="size-3.5 shrink-0" />
-                      ) : (
-                        <ChevronRight className="size-3.5 shrink-0" />
-                      )}
-                      <Folder className="size-3.5 shrink-0" />
-                      <span className="truncate">{folder.name}</span>
-                    </button>
-                    <div className="sidebar-row-actions">
-                      <Button type="button" variant="ghost" size="icon" className="h-6 w-6" aria-label="Новый чат">
-                        <Plus className="size-3.5" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {isOpen &&
-                    folder.chats.map((chat) => (
-                      <div key={chat.id} className="sidebar-row sidebar-chat group">
-                        <span className="min-w-0 flex-1 truncate">{chat.name}</span>
-                        <div className="sidebar-row-actions">
-                          <Button type="button" variant="ghost" size="icon" className="h-6 w-6" aria-label="Закрепить">
-                            <Pin className="size-3.5" />
-                          </Button>
-                          <Button type="button" variant="ghost" size="icon" className="h-6 w-6" aria-label="В архив">
-                            <Archive className="size-3.5" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              )
-            })}
-          </div>
+          <button
+            type="button"
+            aria-label="Скрыть боковую панель"
+            className="app-no-drag sidebar-icon-btn"
+            onClick={onToggle}
+          >
+            <PanelLeft />
+          </button>
         </div>
 
-        <div className="mt-auto flex items-center gap-2 px-1 py-1">
-          <div className="avatar" aria-hidden>
-            DT
+        <div className="app-no-drag flex min-h-0 flex-1 flex-col gap-3 px-2 pb-2">
+          <nav className="flex flex-col gap-0.5">
+            {navItems.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                className={cn('sidebar-nav-item', active === id && 'is-active')}
+                onClick={() => onChange(id)}
+              >
+                <Icon />
+                {label}
+              </button>
+            ))}
+          </nav>
+
+          <div className="flex min-h-0 flex-1 flex-col gap-1">
+            <div className="flex h-7 items-center gap-1 px-1">
+              <span className="sidebar-section-title flex-1">Project folders</span>
+              <button type="button" className="sidebar-icon-btn" aria-label="Сортировать">
+                <ListFilter />
+              </button>
+              <button type="button" className="sidebar-icon-btn" aria-label="Новая папка">
+                <FolderPlus />
+              </button>
+            </div>
+
+            <div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
+              {folders.map((folder) => {
+                const isOpen = Boolean(openFolders[folder.id])
+                return (
+                  <div key={folder.id}>
+                    <div className="sidebar-row group">
+                      <button
+                        type="button"
+                        className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+                        onClick={() => toggleFolder(folder.id)}
+                      >
+                        {isOpen ? <ChevronDown /> : <Folder />}
+                        <span className="truncate">{folder.name}</span>
+                      </button>
+                      <div className="sidebar-row-actions">
+                        <button type="button" className="sidebar-icon-btn" aria-label="Открыть">
+                          <Play />
+                        </button>
+                        <button type="button" className="sidebar-icon-btn" aria-label="Ещё">
+                          <MoreHorizontal />
+                        </button>
+                      </div>
+                    </div>
+
+                    {isOpen &&
+                      folder.chats.map((chat) => (
+                        <div key={chat.id} className="sidebar-row sidebar-chat group">
+                          <span className="min-w-0 flex-1 truncate">{chat.name}</span>
+                          <div className="sidebar-row-actions">
+                            <button type="button" className="sidebar-icon-btn" aria-label="Открыть">
+                              <Play />
+                            </button>
+                            <button type="button" className="sidebar-icon-btn" aria-label="Ещё">
+                              <MoreHorizontal />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )
+              })}
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-sm text-text-active">David Tsymbalov</div>
-            <div className="truncate text-xs text-text-muted">Pro plan</div>
+
+          <div className="mt-auto flex items-center gap-2 px-1 py-1">
+            <div className="avatar" aria-hidden>
+              <img src={avatarUrl} alt="" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="profile-name truncate">David Tsymbalov</div>
+              <div className="profile-plan truncate">Pro plan</div>
+            </div>
+            <button type="button" className="sidebar-icon-btn" aria-label="Настройки">
+              <Settings />
+            </button>
           </div>
-          <Button type="button" variant="ghost" size="icon" aria-label="Настройки">
-            <Settings className="size-4" />
-          </Button>
         </div>
       </div>
     </aside>

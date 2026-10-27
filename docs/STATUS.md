@@ -11,3 +11,4 @@
 - PromptInput: размеры через токены и классы `.prompt-*` в CSS (dev JIT не отдавал кастомные Tailwind-утилиты).
 - Этап 4: sidebar (Home/Code/Design, folders, профиль), экран Home с центрированным PromptInput.
 - Правки макета: prompt 560px / 13px, чипы 24×11, send white/dark, отступ чата под папкой.
+- Подгонка под макет: sidebar border/анимация, denser UI, cross-fade экранов, blur-меню, window frame.

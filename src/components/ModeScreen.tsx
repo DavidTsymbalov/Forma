@@ -1,33 +1,34 @@
 import { PanelLeft } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
-
 type ModeScreenProps = {
   title: string
+  active: boolean
   sidebarOpen: boolean
   onToggleSidebar: () => void
 }
 
-export function ModeScreen({ title, sidebarOpen, onToggleSidebar }: ModeScreenProps) {
+export function ModeScreen({ title, active, sidebarOpen, onToggleSidebar }: ModeScreenProps) {
   return (
-    <main className="flex h-full min-w-0 flex-1 flex-col bg-bg">
-      <header className="app-drag flex h-12 shrink-0 items-center px-3">
+    <section className={active ? 'screen-pane is-active' : 'screen-pane'} aria-hidden={!active}>
+      <header
+        className="app-drag flex shrink-0 items-center px-3"
+        style={{ height: 'var(--titlebar-height)' }}
+      >
         {!sidebarOpen && (
-          <Button
+          <button
             type="button"
-            variant="ghost"
-            size="icon"
             aria-label="Показать боковую панель"
-            className="app-no-drag ml-16"
+            className="app-no-drag sidebar-icon-btn"
+            style={{ marginLeft: 'var(--traffic-inset)' }}
             onClick={onToggleSidebar}
           >
             <PanelLeft />
-          </Button>
+          </button>
         )}
       </header>
-      <div className="app-no-drag flex flex-1 flex-col gap-2 p-8">
-        <h1 className="text-2xl font-semibold text-text-active">{title}</h1>
+      <div className="app-no-drag flex min-h-0 flex-1">
+        <h1 className="mode-title">{title}</h1>
       </div>
-    </main>
+    </section>
   )
 }

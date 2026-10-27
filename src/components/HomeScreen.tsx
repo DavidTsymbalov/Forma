@@ -1,8 +1,8 @@
+import { useState } from 'react'
 import { ChevronDown, Laptop, PanelLeft, PanelRight } from 'lucide-react'
 
 import logoUrl from '../../assets/icons/forma-logo.svg'
 import { PromptInput } from '@/components/PromptInput'
-import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,36 +10,45 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
+const PROJECT_OPTIONS = ['New project', 'Blank project', 'From template'] as const
+const MACHINE_OPTIONS = ['This Mac', 'Cloud'] as const
+
 type HomeScreenProps = {
+  active: boolean
   sidebarOpen: boolean
   onToggleSidebar: () => void
 }
 
-export function HomeScreen({ sidebarOpen, onToggleSidebar }: HomeScreenProps) {
+export function HomeScreen({ active, sidebarOpen, onToggleSidebar }: HomeScreenProps) {
+  const [projectLabel, setProjectLabel] = useState<string>('New project')
+  const [machineLabel, setMachineLabel] = useState<(typeof MACHINE_OPTIONS)[number]>('This Mac')
+
   return (
-    <main className="flex h-full min-w-0 flex-1 flex-col bg-bg">
-      <header className="app-drag flex h-12 shrink-0 items-center justify-between gap-3 px-3">
-        <div className="flex items-center gap-1">
+    <section className={active ? 'screen-pane is-active' : 'screen-pane'} aria-hidden={!active}>
+      <header
+        className="app-drag flex shrink-0 items-center justify-between gap-3 px-3"
+        style={{ height: 'var(--titlebar-height)' }}
+      >
+        <div className="flex items-center">
           {!sidebarOpen && (
-            <Button
+            <button
               type="button"
-              variant="ghost"
-              size="icon"
               aria-label="Показать боковую панель"
-              className="app-no-drag ml-16"
+              className="app-no-drag sidebar-icon-btn"
+              style={{ marginLeft: 'var(--traffic-inset)' }}
               onClick={onToggleSidebar}
             >
               <PanelLeft />
-            </Button>
+            </button>
           )}
         </div>
 
         <div className="app-no-drag flex items-center gap-2">
           <img src={logoUrl} alt="" className="h-5 w-5" />
           <span className="text-sm font-semibold tracking-wide text-text-active">Forma</span>
-          <Button type="button" variant="ghost" size="icon" aria-label="Правая панель">
+          <button type="button" className="sidebar-icon-btn" aria-label="Правая панель">
             <PanelRight />
-          </Button>
+          </button>
         </div>
       </header>
 
@@ -49,28 +58,34 @@ export function HomeScreen({ sidebarOpen, onToggleSidebar }: HomeScreenProps) {
             <div className="home-prompt-row">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button type="button" variant="ghost" size="sm" className="gap-1 text-text-muted">
-                    New project
-                    <ChevronDown className="size-3.5" />
-                  </Button>
+                  <button type="button" className="menu-trigger">
+                    {projectLabel}
+                    <ChevronDown className="size-3" />
+                  </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DropdownMenuItem>Blank project</DropdownMenuItem>
-                  <DropdownMenuItem>From template</DropdownMenuItem>
+                <DropdownMenuContent align="start" sideOffset={2}>
+                  {PROJECT_OPTIONS.filter((item) => item !== 'New project').map((item) => (
+                    <DropdownMenuItem key={item} onSelect={() => setProjectLabel(item)}>
+                      {item}
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button type="button" variant="ghost" size="sm" className="gap-1 text-text-muted">
-                    <Laptop className="size-3.5" />
-                    This Mac
-                    <ChevronDown className="size-3.5" />
-                  </Button>
+                  <button type="button" className="menu-trigger">
+                    <Laptop className="size-3" />
+                    {machineLabel}
+                    <ChevronDown className="size-3" />
+                  </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DropdownMenuItem>This Mac</DropdownMenuItem>
-                  <DropdownMenuItem>Cloud</DropdownMenuItem>
+                <DropdownMenuContent align="start" sideOffset={2}>
+                  {MACHINE_OPTIONS.map((item) => (
+                    <DropdownMenuItem key={item} onSelect={() => setMachineLabel(item)}>
+                      {item}
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -91,10 +106,10 @@ export function HomeScreen({ sidebarOpen, onToggleSidebar }: HomeScreenProps) {
           </div>
         </div>
 
-        <p className="shrink-0 px-6 pb-6 text-center text-xs text-text-muted">
+        <p className="home-hint">
           Hint: write more information to the AI in the prompt so that it does a better job
         </p>
       </div>
-    </main>
+    </section>
   )
 }

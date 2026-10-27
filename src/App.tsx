@@ -13,18 +13,28 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-full w-full overflow-hidden">
-      {sidebarOpen && <Sidebar active={mode} onChange={setMode} onToggle={toggleSidebar} />}
+    <div className="app-frame">
+      <Sidebar open={sidebarOpen} active={mode} onChange={setMode} onToggle={toggleSidebar} />
 
-      {mode === 'home' && (
-        <HomeScreen sidebarOpen={sidebarOpen} onToggleSidebar={toggleSidebar} />
-      )}
-      {mode === 'code' && (
-        <ModeScreen title="Code" sidebarOpen={sidebarOpen} onToggleSidebar={toggleSidebar} />
-      )}
-      {mode === 'design' && (
-        <ModeScreen title="Design" sidebarOpen={sidebarOpen} onToggleSidebar={toggleSidebar} />
-      )}
+      <div className="main-stage">
+        <HomeScreen
+          active={mode === 'home'}
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={toggleSidebar}
+        />
+        <ModeScreen
+          title="Code"
+          active={mode === 'code'}
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={toggleSidebar}
+        />
+        <ModeScreen
+          title="Design"
+          active={mode === 'design'}
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={toggleSidebar}
+        />
+      </div>
     </div>
   )
 }

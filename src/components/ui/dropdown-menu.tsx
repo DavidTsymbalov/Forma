@@ -16,10 +16,7 @@ const DropdownMenuContent = React.forwardRef<
     <DropdownMenuPrimitive.Content
       ref={ref}
       sideOffset={sideOffset}
-      className={cn(
-        'z-50 min-w-32 overflow-hidden rounded-md border border-input-border bg-bg p-1 text-text-active shadow-md',
-        className,
-      )}
+      className={cn('dropdown-content', className)}
       {...props}
     />
   </DropdownMenuPrimitive.Portal>
@@ -34,12 +31,7 @@ const DropdownMenuItem = React.forwardRef<
 >(({ className, inset, ...props }, ref) => (
   <DropdownMenuPrimitive.Item
     ref={ref}
-    className={cn(
-      'relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors',
-      'focus:bg-input-bg focus:text-text-active data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-      inset && 'pl-8',
-      className,
-    )}
+    className={cn('dropdown-item', inset && 'pl-8', className)}
     {...props}
   />
 ))
