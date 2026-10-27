@@ -33,3 +33,44 @@ body {
 .app-no-drag {
   -webkit-app-region: no-drag;
 }
+
+.prompt-shell {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  flex-shrink: 0;
+  justify-content: center;
+  padding-inline: var(--prompt-inline);
+  padding-bottom: var(--prompt-bottom);
+}
+
+.prompt-card {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  max-width: var(--prompt-width);
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow: visible;
+  border: 1px solid var(--input-border);
+  border-radius: var(--prompt-radius);
+  background: var(--input-bg);
+  padding: var(--prompt-padding);
+}
+
+.prompt-textarea {
+  width: 100%;
+  max-height: calc(var(--prompt-line-height) * 8);
+  resize: none;
+  overflow-y: auto;
+  border: none;
+  background: transparent;
+  color: var(--text-active);
+  font-size: 0.875rem;
+  line-height: var(--prompt-line-height);
+  outline: none;
+}
+
+.prompt-textarea::placeholder {
+  color: var(--text-muted);
+}

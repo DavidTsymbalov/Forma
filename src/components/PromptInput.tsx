@@ -43,8 +43,8 @@ export function PromptInput() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-prompt shrink-0 px-4 pb-prompt-bottom">
-      <div className="flex flex-col gap-3 rounded-prompt border border-input-border bg-input-bg p-prompt-padding">
+    <div className="prompt-shell">
+      <div className="prompt-card">
         <textarea
           ref={textareaRef}
           rows={1}
@@ -52,15 +52,15 @@ export function PromptInput() {
           onChange={(event) => setValue(event.target.value)}
           onKeyDown={onKeyDown}
           placeholder="Опиши, что сделать…"
-          className="max-h-prompt-textarea w-full resize-none overflow-y-auto bg-transparent text-sm leading-prompt text-text-active outline-none placeholder:text-text-muted"
+          className="prompt-textarea"
         />
 
         <div className="flex items-center justify-between gap-2">
-          <Button type="button" variant="ghost" size="icon" aria-label="Добавить вложение">
+          <Button type="button" variant="ghost" size="icon" aria-label="Добавить вложение" className="shrink-0">
             <Plus />
           </Button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 shrink-0 items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button type="button" variant="ghost" size="sm" className="gap-1 text-text-muted">
@@ -83,7 +83,7 @@ export function PromptInput() {
               aria-label="Отправить"
               disabled={!canSend}
               onClick={send}
-              className={cn('rounded-full', !canSend && 'opacity-40')}
+              className={cn('shrink-0 rounded-full', !canSend && 'opacity-40')}
             >
               <ArrowUp />
             </Button>

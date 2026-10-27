@@ -16,20 +16,6 @@ export default {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
-        prompt: 'var(--prompt-radius)',
-      },
-      maxWidth: {
-        prompt: 'var(--prompt-width)',
-      },
-      spacing: {
-        'prompt-bottom': 'var(--prompt-bottom)',
-        'prompt-padding': 'var(--prompt-padding)',
-      },
-      lineHeight: {
-        prompt: 'var(--prompt-line-height)',
-      },
-      maxHeight: {
-        'prompt-textarea': 'calc(var(--prompt-line-height) * 8)',
       },
     },
   },
