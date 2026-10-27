@@ -13,10 +13,11 @@ import {
   Settings,
 } from 'lucide-react'
 
-import avatarUrl from '../../../assets/icons/avatar-stub.svg'
+import avatarStub from '../../../assets/icons/avatar-stub.svg'
+import { useAuth } from '@/auth/AuthProvider'
 import { cn } from '@/lib/utils'
 
-export type AppMode = 'home' | 'code' | 'design'
+export type AppMode = 'home' | 'code' | 'design' | 'settings'
 
 const navItems = [
   { id: 'home', label: 'Home', icon: LayoutGrid },
@@ -42,9 +43,14 @@ type SidebarProps = {
 }
 
 export function Sidebar({ open, active, onChange, onToggle }: SidebarProps) {
+  const { user, profile } = useAuth()
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({
     idk: true,
   })
+
+  const displayName = profile?.name || user?.email?.split('@')[0] || 'User'
+  const email = user?.email || ''
+  const avatarSrc = profile?.avatar_url || avatarStub
 
   function toggleFolder(id: string) {
     setOpenFolders((prev) => ({ ...prev, [id]: !prev[id] }))
@@ -139,13 +145,18 @@ export function Sidebar({ open, active, onChange, onToggle }: SidebarProps) {
 
           <div className="mt-auto flex items-center gap-2 px-1 py-1">
             <div className="avatar" aria-hidden>
-              <img src={avatarUrl} alt="" />
+              <img src={avatarSrc} alt="" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="profile-name truncate">David Tsymbalov</div>
-              <div className="profile-plan truncate">Pro plan</div>
+              <div className="profile-name truncate">{displayName}</div>
+              <div className="profile-plan truncate">{email}</div>
             </div>
-            <button type="button" className="sidebar-icon-btn" aria-label="Настройки">
+            <button
+              type="button"
+              className="sidebar-icon-btn"
+              aria-label="Настройки"
+              onClick={() => onChange('settings')}
+            >
               <Settings />
             </button>
           </div>
