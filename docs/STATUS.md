@@ -7,3 +7,4 @@
 - Токены в `src/styles/tokens.css`, окно с vibrancy/размытием на macOS.
 - Раскладка: sidebar + main, режимы Design / IT.
 - Проверено локально: `npm run build` ок, `npm run dev` поднимает Vite на :5173 и Electron.
+- Этап 3: блок ввода промпта (`PromptInput`) внизу main, DropdownMenu моделей, Enter/Shift+Enter.
