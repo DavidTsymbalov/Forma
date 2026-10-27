@@ -14,7 +14,15 @@ const MODELS = ['Auto', 'Claude', 'GPT', 'Gemini'] as const
 
 type Model = (typeof MODELS)[number]
 
-export function PromptInput() {
+type PromptInputProps = {
+  placeholder?: string
+  centered?: boolean
+}
+
+export function PromptInput({
+  placeholder = 'Опиши, что сделать…',
+  centered = false,
+}: PromptInputProps) {
   const [value, setValue] = useState('')
   const [model, setModel] = useState<Model>('Auto')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -43,7 +51,7 @@ export function PromptInput() {
   }
 
   return (
-    <div className="prompt-shell">
+    <div className={cn('prompt-shell', centered && 'prompt-shell--center')}>
       <div className="prompt-card">
         <textarea
           ref={textareaRef}
@@ -51,7 +59,7 @@ export function PromptInput() {
           value={value}
           onChange={(event) => setValue(event.target.value)}
           onKeyDown={onKeyDown}
-          placeholder="Опиши, что сделать…"
+          placeholder={placeholder}
           className="prompt-textarea"
         />
 

@@ -1,11 +1,16 @@
 :root {
   --bg: rgba(22, 22, 24, 0.72);
   --sidebar: rgba(16, 16, 18, 0.55);
+  --sidebar-item-active: rgba(255, 255, 255, 0.1);
   --input-bg: rgba(255, 255, 255, 0.08);
   --input-border: rgba(255, 255, 255, 0.14);
   --text-muted: rgba(255, 255, 255, 0.55);
   --text-active: rgba(255, 255, 255, 0.95);
   --radius: 0.625rem;
+  --radius-item: 8px;
+  --sidebar-width: 240px;
+  --titlebar-height: 48px;
+  --avatar-size: 32px;
   --prompt-width: 720px;
   --prompt-bottom: 24px;
   --prompt-inline: 24px;
