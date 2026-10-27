@@ -1,0 +1,9 @@
+:root {
+  --bg: rgba(22, 22, 24, 0.72);
+  --sidebar: rgba(16, 16, 18, 0.55);
+  --input-bg: rgba(255, 255, 255, 0.08);
+  --input-border: rgba(255, 255, 255, 0.14);
+  --text-muted: rgba(255, 255, 255, 0.55);
+  --text-active: rgba(255, 255, 255, 0.95);
+  --radius: 0.625rem;
+}
