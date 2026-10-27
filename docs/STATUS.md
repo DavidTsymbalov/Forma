@@ -12,3 +12,5 @@
 - Этап 4: sidebar (Home/Code/Design, folders, профиль), экран Home с центрированным PromptInput.
 - Правки макета: prompt 560px / 13px, чипы 24×11, send white/dark, отступ чата под папкой.
 - Подгонка под макет: sidebar border/анимация, denser UI, cross-fade экранов, blur-меню, window frame.
+- Auth шаг 1: миграция Supabase (profiles, project_folders, chats) + RLS запушена.
+- Auth шаг 2: сайт `web/` — login/register/account, deep link `forma://auth` для desktop.
